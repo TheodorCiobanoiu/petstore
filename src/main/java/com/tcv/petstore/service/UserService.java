@@ -18,10 +18,10 @@ public class UserService {
     public User saveUser(User user, Optional<Integer> requestantId) {
         if (user.getUserType() == UserType.CLIENT)
             return userRepository.save(user);
-        else if (user.getUserType() == UserType.OWNER &&
-                requestantId.isPresent() &&
-                userRepository.findById(requestantId.get()).get().getUserType() == UserType.OWNER) {
-            return userRepository.save(user);
+        else if (user.getUserType() == UserType.OWNER && requestantId.isPresent()) {
+            Optional<User> userN = userRepository.findById(requestantId.get());
+            if (userN.isPresent() && userN.get().getUserType() == UserType.OWNER)
+                return userRepository.save(user);
         }
         return null;
     }
