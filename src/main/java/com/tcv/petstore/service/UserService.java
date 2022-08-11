@@ -19,21 +19,25 @@ public class UserService {
         if (user.getUserType() == UserType.CLIENT)
             return userRepository.save(user);
         else if (user.getUserType() == UserType.OWNER && requestantId.isPresent()) {
-            Optional<User> userN = userRepository.findById(requestantId.get());
-            if (userN.isPresent() && userN.get().getUserType() == UserType.OWNER)
+            if (isAdmin(requestantId.get())) {
                 return userRepository.save(user);
+            }
         }
         return null;
     }
 
-    public User getUserById(Integer id){
+    public boolean isAdmin(Integer userId) {
+        Optional<User> user = userRepository.findById(userId);
+        return user.isPresent() && user.get().getUserType() == UserType.OWNER;
+    }
+
+    public User getUserById(Integer id) {
         if (userRepository.findById(id).isPresent()) {
             return userRepository.findById(id).get();
         } else {
             return null;
         }
     }
-
 
 
 }
