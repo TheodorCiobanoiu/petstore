@@ -1,5 +1,7 @@
 package com.tcv.petstore.service;
 
+import com.tcv.petstore.model.Pet;
+import com.tcv.petstore.model.PurchaseHistory;
 import com.tcv.petstore.model.User;
 import com.tcv.petstore.model.UserType;
 import com.tcv.petstore.repository.UserRepository;
@@ -14,6 +16,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PurchaseHistoryService purchaseHistoryService;
+    private final PetService petService;
 
     public User saveUser(User user, Optional<Integer> requestantId) {
         if (user.getUserType() == UserType.CLIENT)
@@ -36,6 +40,19 @@ public class UserService {
             return userRepository.findById(id).get();
         } else {
             return null;
+        }
+    }
+
+    public void purchasePet(Integer petId, Integer userId){
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return;
+        }
+
+        if (petService.getPetStock(petId) > 0) {
+            User user = userOptional.get();
+            user.getPurchaseHistory().add(purchaseHistoryService.savePurchaseHistory(user, petId));
+            purchaseHistoryService.updateStock(petId);
         }
     }
 
